@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const indexRouter = require('./router')
 const localhost = require('./LocalhostConnection')
-// localhost()
+ localhost()
 
 
 const app = express()
