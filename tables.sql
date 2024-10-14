@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `second_name` VARCHAR(45) NULL,
   `surname` VARCHAR(45) NOT NULL,
   `FK_iduser_type` INT NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
   `email` VARCHAR(45) NOT NULL,
   `phonenumber` INT NOT NULL,
   `zipcode` VARCHAR(45) NOT NULL,

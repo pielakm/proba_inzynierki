@@ -5,6 +5,7 @@ const dbconnection = require('./dbConnection'); // Import the function
 const path = require('path');
 const fs = require('fs');
 const mysql = require('mysql');
+// const bcrypt = require("bcryptjs")
 
 router.post('/createDatabase', (_req, res, next) => {
     const con = connection(); // Get a new connection instance
@@ -19,57 +20,6 @@ router.post('/createDatabase', (_req, res, next) => {
         }
     });
 });
-
-
-// router.post('/createTable', (req, res, next) => {
-//     const db = dbconnection();
-//     const tables = fs.readFileSync('./tables.sql').toString();
-//     db.connect(err => {
-//         if (err) {
-//             console.error('Error connecting to the database:', err);
-//             return next(err);
-//         }
-//         console.log('Connected to the database');
-//         // Start a transaction
-//         db.beginTransaction(err => {
-//             if (err) {
-//                 console.error('Error starting transaction:', err);
-//                 db.end(); // Close the connection on error
-//                 return next(err);
-//             }
-
-//             const queries = tables.split(/;\s*$/m); // Split by semicolon
-
-//             // Execute each query
-//             queries.forEach(query => {
-//                 if (query.trim()) { // Skip empty queries
-//                     db.query(query, (err, result) => {
-//                         if (err) {
-//                             return db.rollback(() => {
-//                                 console.error('SQL execution error:', err);
-//                                 return next(err);
-//                             });
-//                         }
-//                         console.log('Query executed successfully');
-//                     });
-//                 }
-//             });
-
-//             // Commit transaction
-//             db.commit(err => {
-//                 if (err) {
-//                     return db.rollback(() => {
-//                         console.error('Transaction commit error:', err);
-//                         return next(err);
-//                     });
-//                 }
-//                 console.log('Transaction committed successfully');
-//                 res.json({ message: 'Tables created successfully' });
-    
-//             });
-//         });
-//     });
-// });
 
 router.post('/createTable', async (req, res, next) => {
     const db = dbconnection();
@@ -171,6 +121,57 @@ router.post('/insertEvent', (req, res, next) =>{
   
 });
 
+router.get('/getEvents', (req, res, next) => {
+    const db = dbconnection();
+    const query = `
+    SELECT * FROM event
+  `;
+  
+  // Wykonanie zapytania
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('SQL execution error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(result);
+  });
+});
+
+router.post('/register', (req, res, next) => {
+    const db = dbconnection();
+    var name = req.query.name;
+    var second_name = req.query.second_name;
+    var surname = req.query.surname;
+    var FK_iduser_type = req.query.FK_iduser_type;
+    var password = req.query.password;
+    var email = req.query.email;
+    var phonenumber = req.query.phonenumber;
+    var zipcode = req.query.zipcode;
+    var street = req.query.street;
+    var FK_idcity = req.query.FK_idcity;
+    var loyal_card_idloyal_card = req.query.loyal_card_idloyal_card;
 
 
+db.connect(function(err) {
+    if (err){
+        console.log(err);
+    };
+    // checking user already registered or no
+    db.query(`SELECT * FROM user WHERE name = '${name}' AND password  = '${password}'`, function(err, result){
+        if(err){
+            console.log(err);
+        };
+            // inserting new user data
+            var sql = `INSERT INTO user (name, second_name, surname, FK_iduser_type, password, email, phonenumber, zipcode, street, FK_idcity, loyal_card_idloyal_card)  VALUES ('${name}', '${second_name}', '${surname}', '${FK_iduser_type}', '${password}', '${email}', '${phonenumber}', '${zipcode}', '${street}', '${FK_idcity}', '${loyal_card_idloyal_card}')`;
+            db.query(sql, function (err, result) {
+                if (err){
+                    console.log(err);
+                }else{
+                    res.status(201).json({ message: 'User created successfully', userId: result.insertId });
+                };
+            });
+    });
+});
+
+})
 module.exports = router;
